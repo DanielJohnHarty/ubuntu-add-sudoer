@@ -1,0 +1,32 @@
+---
+- name: Add the {{ username }} group
+  ansible.builtin.group:
+    name: '{{ username }}'
+    state: present
+
+- name: Add the user {{ username }}
+  ansible.builtin.user:
+    name: '{{ username }}'
+    comment: '{{ user_comment }}'
+    group: '{{ username }}'
+
+- name: Ensure sudo is installed
+  ansible.builtin.apt:
+    name: sudo
+    state: present
+  when: sudoer
+
+- name: add {{ username }} to sudo group
+  ansible.builtin.user:
+    name: "{{ username }}"
+    groups: "sudo"
+    append: true
+
+- name: Validate the sudoers file before saving
+  ansible.builtin.lineinfile:
+    path: /etc/sudoers
+    state: present
+    regexp: '^%{{ username }} ALL='
+    line: '%{{ username }} ALL=(ALL) NOPASSWD: ALL'
+    validate: /usr/sbin/visudo -cf %s
+  when: passwordless_sudo

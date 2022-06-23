@@ -1,0 +1,5 @@
+---
+username: johndoe
+user_comment: John Doe
+sudoer: no
+passwordless_sudo: no
